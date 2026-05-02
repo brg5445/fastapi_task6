@@ -35,7 +35,6 @@ pydantic-extra-types==2.11.0
 pydantic-settings==2.13.1
 pygments==2.19.2
 pytest==9.0.2
-python-dotenv==1.2.1
 python-multipart==0.0.22
 pyyaml==6.0.3
 rich==14.3.3

@@ -1,4 +1,15 @@
-FROM ubuntu:latest
-LABEL authors="Владислав"
+FROM python:3.11-slim
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+ENV PYTHONPATH=/app:/app/src
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]
