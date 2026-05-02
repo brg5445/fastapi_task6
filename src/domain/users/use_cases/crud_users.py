@@ -20,11 +20,9 @@ class MethodsForUser:
         return user
 
     def create(self, db: Session, payload: UserCreate):
-        # Проверка уникальности nickname
         if db.query(UserModel).filter(UserModel.nickname == payload.nickname).first():
             raise UserNicknameIsNotUniqueException()
 
-        # Проверка уникальности email
         if db.query(UserModel).filter(UserModel.email == payload.email).first():
             raise UserEmailIsNotUniqueException()
 
@@ -34,7 +32,7 @@ class MethodsForUser:
             last_name=payload.last_name,
             email=payload.email,
             bio_info=payload.bio_info,
-            hashed_password=get_password_hash(payload.password)  # Хешируем пароль
+            hashed_password=get_password_hash(payload.password)
         )
 
         db.add(user)
