@@ -3,15 +3,6 @@ from fastapi import FastAPI, Request
 from src.core.config import settings
 from src.core.logging import logger
 
-# Импорт моделей (пока оставим, но ниже объясню как лучше)
-from src.infrastructure.sqlite.models import (
-    category_models,
-    comment_models,
-    location_models,
-    post_models,
-    user_models,
-)
-
 from src.api import users, categories, locations, posts, comments, auth
 
 
@@ -21,7 +12,6 @@ app = FastAPI(
 )
 
 
-# 🔥 ЛОГИРОВАНИЕ (обязательное требование)
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     logger.info(f"{request.method} {request.url}")
