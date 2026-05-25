@@ -2,3 +2,4 @@ venv/
 __pychache__/
 sql_app.db
 .env
+uploads/
