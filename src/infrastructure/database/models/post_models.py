@@ -12,7 +12,7 @@ class PostModel(Base):
     title = Column(String, nullable=False)
     is_published = Column(Boolean, default=True, nullable=False)
     pub_date = Column(DateTime, nullable=False)
-    image = Column(String, default="", nullable=True)
+    image = Column(String(255), nullable=True)
 
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     location_id = Column(Integer, ForeignKey("locations.id"), nullable=True)

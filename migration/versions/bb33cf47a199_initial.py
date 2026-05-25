@@ -1,8 +1,8 @@
-"""auth_ready_schema
+"""initial
 
-Revision ID: ae3b69665f17
-Revises: 1d4df9803afb
-Create Date: 2026-04-24 19:57:38.347562
+Revision ID: bb33cf47a199
+Revises: d008f7037435
+Create Date: 2026-05-25 19:11:58.421000
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ae3b69665f17'
-down_revision: Union[str, Sequence[str], None] = '1d4df9803afb'
+revision: str = 'bb33cf47a199'
+down_revision: Union[str, Sequence[str], None] = 'd008f7037435'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -63,7 +63,7 @@ def upgrade() -> None:
     sa.Column('title', sa.String(), nullable=False),
     sa.Column('is_published', sa.Boolean(), nullable=False),
     sa.Column('pub_date', sa.DateTime(), nullable=False),
-    sa.Column('image', sa.String(), nullable=True),
+    sa.Column('image', sa.String(length=255), nullable=True),
     sa.Column('author_id', sa.Integer(), nullable=False),
     sa.Column('location_id', sa.Integer(), nullable=True),
     sa.Column('category_id', sa.Integer(), nullable=True),
@@ -79,6 +79,7 @@ def upgrade() -> None:
     sa.Column('text', sa.Text(), nullable=False),
     sa.Column('post_id', sa.Integer(), nullable=False),
     sa.Column('author_id', sa.Integer(), nullable=False),
+    sa.Column('image', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
     sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ),
     sa.PrimaryKeyConstraint('id')

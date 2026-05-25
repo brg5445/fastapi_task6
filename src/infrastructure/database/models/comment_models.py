@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text, String
 from datetime import datetime as dati
 
 from sqlalchemy.orm import relationship
@@ -14,3 +14,4 @@ class CommentModel(Base):
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     post = relationship("PostModel", back_populates="comments")
     author = relationship("UserModel", back_populates="comments")
+    image = Column(String, nullable=True)

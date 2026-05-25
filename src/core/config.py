@@ -3,15 +3,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     SECRET_KEY: str
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
     DATABASE_URL: str
 
-    APP_NAME: str = "FastAPI Blog"
-    DEBUG: bool = False
+    APP_NAME: str
+    DEBUG: bool
 
-    LOG_LEVEL: str = "INFO"
+    LOG_LEVEL: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

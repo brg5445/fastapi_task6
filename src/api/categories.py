@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 
 from ..domain.categories.use_cases.crud_categories import MethodsForCategory
 from src.core.exceptions.domain_exceptions import CategoryNotFoundBySlugException, CategoryIsNotUniqueException
-from ..infrastructure.sqlite.database import get_db
+from ..infrastructure.database.database import get_db
 from ..schemas.categories import CategoryOut, CategoryUpdateAndCreate
 from src.core.security import get_current_user
-from src.infrastructure.sqlite.models.user_models import UserModel
+from src.infrastructure.database.models.user_models import UserModel
 
 router = APIRouter(prefix='/categories', tags=['Категории постов'])
 

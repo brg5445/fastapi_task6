@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from src.infrastructure.sqlite.models.user_models import UserModel
+from src.infrastructure.database.models.user_models import UserModel
 from src.schemas.users import UserCreate, UserUpdate
 from src.core.exceptions.domain_exceptions import (
     UserNicknameIsNotUniqueException,
@@ -16,15 +16,15 @@ class MethodsForUser:
     def get_detail(self, db: Session, nickname: str):
         user = db.query(UserModel).filter(UserModel.nickname == nickname).first()
         if not user:
-            raise UserNotFoundByNicknameException()
+            raise UserNotFoundByNicknameException(nickname=nickname)
         return user
 
     def create(self, db: Session, payload: UserCreate):
         if db.query(UserModel).filter(UserModel.nickname == payload.nickname).first():
-            raise UserNicknameIsNotUniqueException()
+            raise UserNicknameIsNotUniqueException(nickname=payload.nickname)
 
         if db.query(UserModel).filter(UserModel.email == payload.email).first():
-            raise UserEmailIsNotUniqueException()
+            raise UserEmailIsNotUniqueException(email=payload.email)
 
         user = UserModel(
             nickname=payload.nickname,
@@ -43,12 +43,11 @@ class MethodsForUser:
     def update(self, db: Session, nickname: str, payload: UserUpdate):
         user = db.query(UserModel).filter(UserModel.nickname == nickname).first()
         if not user:
-            raise UserNotFoundByNicknameException()
+            raise UserNotFoundByNicknameException(nickname=nickname)
 
-        # Проверка уникальности email при изменении
         if payload.email != user.email:
             if db.query(UserModel).filter(UserModel.email == payload.email).first():
-                raise UserEmailIsNotUniqueException()
+                raise UserEmailIsNotUniqueException(email=payload.email)
 
         user.first_name = payload.first_name
         user.last_name = payload.last_name
@@ -62,7 +61,7 @@ class MethodsForUser:
     def destroy(self, db: Session, nickname: str):
         user = db.query(UserModel).filter(UserModel.nickname == nickname).first()
         if not user:
-            raise UserNotFoundByNicknameException()
+            raise UserNotFoundByNicknameException(nickname=nickname)
 
         db.delete(user)
         db.commit()

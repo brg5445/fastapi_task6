@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from src.infrastructure.sqlite.models.comment_models import CommentModel
-from src.infrastructure.sqlite.models.post_models import PostModel
-from src.infrastructure.sqlite.models.user_models import UserModel
+from src.infrastructure.database.models.comment_models import CommentModel
+from src.infrastructure.database.models.post_models import PostModel
+from src.infrastructure.database.models.user_models import UserModel
 from src.schemas.comments import CommentCreate, CommentUpdate
 from src.core.exceptions.domain_exceptions import (
     CommentNotFoundByIDException,
@@ -16,14 +16,14 @@ class MethodsForComment:
         if post_id is not None:
             post = db.query(PostModel).filter(PostModel.id == post_id).first()
             if not post:
-                raise PostNotFoundByIDException()
+                raise PostNotFoundByIDException(post_id=post_id)
             query = query.filter(CommentModel.post_id == post_id)
         return query.offset(skip).limit(limit).all()
 
-    def get_detail(self, db: Session, comment_id: int):
-        comment = db.query(CommentModel).filter(CommentModel.id == comment_id).first()
+    def get_detail(self, db: Session, id: int):
+        comment = db.query(CommentModel).filter(CommentModel.id == id).first()
         if not comment:
-            raise CommentNotFoundByIDException()
+            raise CommentNotFoundByIDException(id=id)
         return comment
 
     def create(self, db: Session, payload: CommentCreate, author_id: int):
@@ -32,7 +32,7 @@ class MethodsForComment:
             raise CommentDontCreateException("Пост не найден")
 
         comment = CommentModel(
-            content=payload.content,
+            text=payload.text,
             post_id=payload.post_id,
             author_id=author_id
         )
@@ -46,17 +46,46 @@ class MethodsForComment:
             db.rollback()
             raise CommentDontCreateException(str(e))
 
-    def update(self, db: Session, comment_id: int, payload: CommentUpdate, current_user: UserModel):
-        comment = db.query(CommentModel).filter(CommentModel.id == comment_id).first()
+    def add_image(
+            self,
+            db: Session,
+            id: int,
+            image_path: str,
+            current_user: UserModel
+    ):
+        comment = db.query(CommentModel).filter(
+            CommentModel.id == id
+        ).first()
+
         if not comment:
-            raise CommentNotFoundByIDException()
+            raise CommentNotFoundByIDException(id=id)
+
+        if comment.author_id != current_user.id:
+            raise CommentDontCreateException(
+                "Вы не являетесь автором этого комментария"
+            )
+
+        comment.image = image_path
+
+        try:
+            db.commit()
+            db.refresh(comment)
+            return comment
+
+        except Exception as e:
+            db.rollback()
+            raise CommentDontCreateException(str(e))
+
+    def update(self, db: Session, id: int, payload: CommentUpdate, current_user: UserModel):
+        comment = db.query(CommentModel).filter(CommentModel.id == id).first()
+        if not comment:
+            raise CommentNotFoundByIDException(id=id)
 
         if comment.author_id != current_user.id:
             raise CommentDontCreateException("Вы не являетесь автором этого комментария")
 
-        # Обновление полей
-        if payload.content is not None:
-            comment.content = payload.content
+        if payload.text is not None:
+            comment.text = payload.text
 
         try:
             db.commit()
@@ -66,10 +95,10 @@ class MethodsForComment:
             db.rollback()
             raise CommentDontCreateException(str(e))
 
-    def destroy(self, db: Session, comment_id: int, current_user: UserModel):
-        comment = db.query(CommentModel).filter(CommentModel.id == comment_id).first()
+    def destroy(self, db: Session, id: int, current_user: UserModel):
+        comment = db.query(CommentModel).filter(CommentModel.id == id).first()
         if not comment:
-            raise CommentNotFoundByIDException()
+            raise CommentNotFoundByIDException(id=id)
 
         if comment.author_id != current_user.id:
             raise CommentDontCreateException("Вы не являетесь автором этого комментария")

@@ -112,12 +112,3 @@ class CommentDontCreateException(BaseDomainException):
         self._exception_text_template = self._exception_text_template.format(cause=cause)
 
         super().__init__(detail=self._exception_text_template)
-
-
-# class CommentDontChangeException(BaseDomainException):
-#     _exception_text_template = "Комментарий не смог быть изменён, так как {cause}."
-
-#     def __init__(self, cause: str) -> None:
-#         self._exception_text_template = self._exception_text_template.format(cause=cause)
-
-#         super().__init__(detail=self._exception_text_template)

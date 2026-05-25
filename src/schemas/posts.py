@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime as dati
 from typing import List
+from typing import Optional
 
 from .users import UserOut
 from .categories import CategoryOut
@@ -22,9 +23,11 @@ class PostUpdate(BaseModel):
     text: str = Field(default=None)
     pub_date: dati = Field(default=None)
     is_published: bool = Field(default=None)
+
     image: str = Field(default=None)
-    location_name: str = Field(default=None)
-    category_slug: str = Field(default=None)
+
+    location_id: int = Field(default=None)
+    category_id: int = Field(default=None)
 
     @field_validator("title", mode="after")
     @staticmethod
@@ -43,9 +46,9 @@ class PostOut(BaseModel):
     text: str = Field(default=None)
     pub_date: dati = Field(default=None)
     is_published: bool = Field(default=None)
-    image: str = Field(default=None)
-    location_id: int = Field(default=None)
-    category_id: int = Field(default=None)
+    image: Optional[str] = None
+    location_id: Optional[int] = None
+    category_id: Optional[int] = None
     author_id: int = Field(default=None)
 
     @field_validator("title", mode="after")

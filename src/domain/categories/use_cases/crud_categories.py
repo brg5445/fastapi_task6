@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy.orm import Session
 
-from ....infrastructure.sqlite.repositories.categories import CategoryRepository
+from ....infrastructure.database.repositories.categories import CategoryRepository
 from ....schemas.categories import CategoryOut, CategoryUpdateAndCreate
 
 from src.core.exceptions.domain_exceptions import CategoryNotFoundBySlugException, CategoryIsNotUniqueException

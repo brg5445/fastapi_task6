@@ -8,10 +8,10 @@ from src.core.exceptions.domain_exceptions import (
     UserNotFoundByNicknameException,
     UserEmailIsNotUniqueException,
 )
-from ..infrastructure.sqlite.database import get_db
+from ..infrastructure.database.database import get_db
 from ..schemas.users import UserCreate, UserOut, UserUpdate
 from src.core.security import get_current_user
-from src.infrastructure.sqlite.models.user_models import UserModel
+from src.infrastructure.database.models.user_models import UserModel
 
 router = APIRouter(prefix='/users', tags=['Пользователи'])
 

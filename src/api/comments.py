@@ -1,9 +1,14 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+import os
+import uuid
+
+from fastapi import UploadFile, File
+from fastapi.responses import FileResponse
 
 from ..domain.comments.use_cases.crud_comments import MethodsForComment
-from ..infrastructure.sqlite.database import get_db
+from ..infrastructure.database.database import get_db
 from ..schemas.comments import CommentCreate, CommentOut, CommentUpdate
 from src.core.exceptions.domain_exceptions import (
     CommentNotFoundByIDException,
@@ -11,10 +16,21 @@ from src.core.exceptions.domain_exceptions import (
     PostNotFoundByIDException,
 )
 from src.core.security import get_current_user
-from src.infrastructure.sqlite.models.user_models import UserModel
+from src.infrastructure.database.models.user_models import UserModel
 
 router = APIRouter(prefix='/comments', tags=['Комментарии'])
 
+UPLOAD_DIR = "uploads/comments"
+
+ALLOWED_EXTENSIONS = {
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "webp"
+}
+
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
 @router.get('/', response_model=List[CommentOut], summary='Комментарии:')
 def list_comments(
@@ -77,3 +93,75 @@ def delete_comment(
         use_case.destroy(DataBase, comment_id, current_user=current_user)
     except CommentNotFoundByIDException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.get_detail())
+
+@router.post("/{comment_id}/image", summary="Загрузить фото к комментарию")
+async def upload_comment_image(
+    comment_id: int,
+    file: UploadFile = File(...),
+    DataBase: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+
+    ext = file.filename.split(".")[-1].lower()
+
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail="Недопустимый формат файла"
+        )
+
+    contents = await file.read()
+
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="Файл слишком большой"
+        )
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    filename = f"{uuid.uuid4()}.{ext}"
+
+    filepath = os.path.join(UPLOAD_DIR, filename)
+
+    with open(filepath, "wb") as f:
+        f.write(contents)
+
+    use_case = MethodsForComment()
+
+    try:
+        comment = use_case.add_image(
+            DataBase,
+            comment_id,
+            filepath,
+            current_user
+        )
+
+        return {
+            "comment_id": comment.id,
+            "image": filepath
+        }
+
+    except CommentNotFoundByIDException as e:
+        raise HTTPException(
+            status_code=404,
+            detail=e.get_detail()
+        )
+
+
+@router.get("/{comment_id}/image", summary="Получить фото комментария")
+def get_comment_image(comment_id: int, DataBase: Session = Depends(get_db)):
+    use_case = MethodsForComment()
+    try:
+        comment = use_case.get_detail(DataBase, comment_id)
+    except CommentNotFoundByIDException as e:
+        raise HTTPException(status_code=404, detail=e.get_detail())
+
+    if not comment.image:
+        raise HTTPException(status_code=404, detail="У комментария нет фото")
+
+    filepath = comment.image
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail="Файл не найден")
+
+    return FileResponse(filepath)

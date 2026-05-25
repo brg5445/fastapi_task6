@@ -6,10 +6,10 @@ from ..domain.locations.use_cases.crud_locations import MethodsForLocation
 
 from src.core.exceptions.domain_exceptions import LocationNotFoundByNameException, LocationIsNotUniqueException
 
-from ..infrastructure.sqlite.database import get_db
+from ..infrastructure.database.database import get_db
 from ..schemas.locations import LocationOut, LocationUpdateAndCreate
 from src.core.security import get_current_user
-from src.infrastructure.sqlite.models.user_models import UserModel
+from src.infrastructure.database.models.user_models import UserModel
 
 router = APIRouter(prefix='/locations', tags=['Местоположения'])
 
